@@ -16,9 +16,9 @@ function App() {
         <h2>PROJECTS</h2>
         <p>what I've done (probably not my life)</p>
         <div class="dropdown-content">
-          <a href="#">Item 1</a>
-          <a href="#">Item 2</a>
-          <a href="#">Item 3</a>
+          <a href="https://sankatjm0.github.io/portfolio">My Portfolio</a>
+          <a href="#">Mau Nguoi Cua Cau La Gi ?</a>
+          <a href="#">Telegram Bot</a>
         </div>
       </div>
       <div name='ranking' id='ranking'>
