@@ -11,6 +11,10 @@ body {
 	align-items: center;
 }
 
+.session div:hover {
+	text-shadow: 1px 1px 5px #ffffff, 1px 1px 10px #ff79d7;
+}
+
 #about {
 	width: 200px;
 }
@@ -39,28 +43,32 @@ h2, p {
 	position: absolute;
   	bottom: 100px;
 	width: 200px;
-	right:100px;
+	right: 100px;
 	display: fixed;
+	transition: all 1.5s;
 }
 
 .dropdown-content {
-	text-align: center;
 	position: absolute;
 	top: 100%;
-	left: 0;
 	background: rgba(255, 255, 255, 0);
-	min-width: 160px;
+	width: 250px;
 	opacity: 0;
 	transform: translateY(-10px);
 	transition: all 0.3s;
 	pointer-events: none;
-	border-radius: 0.5rem;
+	margin: auto;
 }
 
 .projects:hover .dropdown-content {
 	opacity: 1;
 	transform: translateY(0);
 	pointer-events: auto;
+}
+
+.projects:hover {
+	bottom: 200px;
+	right: 200px;
 }
 
 .dropdown-content a {
@@ -72,7 +80,8 @@ h2, p {
 }
 
 .dropdown-content a:hover {
-	font-style: bold;
+	font-weight: bold;
+	text-shadow: 1px 1px 5px #ffffff, 1px 1px 10px #ff79d7;
 }
 
 @keyframes gradient {
