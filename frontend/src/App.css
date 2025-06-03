@@ -96,19 +96,4 @@ h2, p {
 	}
 }
 
-.cursor-object {
-  position: fixed; /* thay vì absolute */
-  width: 20px;
-  height: 20px;
-  background-color: #ff4081;
-  border-radius: 50%;
-  pointer-events: none;
-  transition: all 0.05s linear;
-  z-index: 9999;
-}
 
-/* .butterfly {
-	background-image: url('https://i.pinimg.com/originals/6f/40/87/6f4087f1ebea16d5f5168080efb6c31e.gif');
-	background-size: cover;
-	background-position: center;
-} */
