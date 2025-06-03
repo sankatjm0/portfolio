@@ -39,7 +39,9 @@ function App() {
   }, []);
 
   return (
+    
     <div>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous"></link>
       <img
         src={gifImg}
         alt="follow-cursor"
@@ -59,9 +61,26 @@ function App() {
           <h2>ABOUT ME</h2>
           <p>wanna hear something?</p>
         </div>
-        <div name="contact" id="contact">
+        <div className="contact" id="contact">
           <h2>CONTACT</h2>
           <p>get in touch w/ me</p>
+          <div className="dropdown-content">
+            <a href="#">
+              <ul>
+                <li>
+                  <a href="https://facebook.com/sankatimo">
+                    <i class="fab fa-facebook-f icon"></i>    </a>
+                </li>
+                <li>
+                  <a href="#"><i class="fab fa-linkedin icon"></i></a>
+                </li>
+                <li>
+                  <a href="https://github.com/sankatjm0"><i class="fab fa-github icon"></i></a></li>
+                <li>
+                  <a href="https://www.instagram.com/sankatjm0/"><i class="fab fa-instagram icon"></i></a></li>
+              </ul>
+            </a>
+          </div>
         </div>
         <div className="projects">
           <h2>PROJECTS</h2>
