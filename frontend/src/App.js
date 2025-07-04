@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
 import './App.css';
 import gifImg from './butterfly.gif';
 import RandomObject from './component/RandomObject.js';
@@ -14,83 +13,82 @@ function App() {
   const butterflySize = 80;
   const objectSize = 30;
 
-  // const createRandomObject = () => {
-  //   const x = Math.random() * (window.innerWidth - objectSize);
-  //   const y = Math.random() * (window.innerHeight - objectSize);
-  //   return { id: Math.random(), x, y };
-  // };
+  const createRandomObject = () => {
+    const x = Math.random() * (window.innerWidth - objectSize);
+    const y = Math.random() * (window.innerHeight - objectSize);
+    return { id: Math.random(), x, y };
+  };
 
-  // const refillObjects = (currentObjects) => {
-  //   const newObjects = [...currentObjects];
-  //   while (newObjects.length < 10) {
-  //     newObjects.push(createRandomObject());
-  //   }
-  //   return newObjects;
-  // };
+  const refillObjects = (currentObjects) => {
+    const newObjects = [...currentObjects];
+    while (newObjects.length < 10) {
+      newObjects.push(createRandomObject());
+    }
+    return newObjects;
+  };
 
-  // useEffect(() => {
-  //   const initialObjects = Array.from({ length: 10 }, createRandomObject);
-  //   setObjects(initialObjects);
-  // }, []);
+  useEffect(() => {
+    const initialObjects = Array.from({ length: 10 }, createRandomObject);
+    setObjects(initialObjects);
+  }, []);
 
-  // // Update butterfly position smoothly and check collisions
-  // useEffect(() => {
-  //   let animationFrameId;
+  // Update butterfly position smoothly and check collisions
+  useEffect(() => {
+    let animationFrameId;
 
-  //   const moveButterfly = () => {
-  //     setButterflyPos((prev) => {
-  //       const dx = targetPos.x - prev.x;
-  //       const dy = targetPos.y - prev.y;
-  //       const speed = 0.95; // Increased speed to make butterfly stay very close to cursor
-  //       const newX = prev.x + dx * speed;
-  //       const newY = prev.y + dy * speed;
+    const moveButterfly = () => {
+      setButterflyPos((prev) => {
+        const dx = targetPos.x - prev.x;
+        const dy = targetPos.y - prev.y;
+        const speed = 0.95; 
+        const newX = prev.x + dx * speed;
+        const newY = prev.y + dy * speed;
 
-  //       // Check collision using butterfly's position (not cursor)
-  //       setObjects((prevObjects) => {
-  //         const remaining = prevObjects.filter((obj) => {
-  //           const isColliding =
-  //             newX < obj.x + objectSize &&
-  //             newX + butterflySize > obj.x &&
-  //             newY < obj.y + objectSize &&
-  //             newY + butterflySize > obj.y;
-  //           return !isColliding;
-  //         });
-  //         return refillObjects(remaining);
-  //       });
+        setObjects((prevObjects) => {
+          const remaining = prevObjects.filter((obj) => {
+            const isColliding =
+              newX < obj.x + objectSize &&
+              newX + butterflySize > obj.x &&
+              newY < obj.y + objectSize &&
+              newY + butterflySize > obj.y;
+            return !isColliding;
+          });
+          return refillObjects(remaining);
+        });
 
-  //       return { x: newX, y: newY };
-  //     });
+        return { x: newX, y: newY };
+      });
 
-  //     animationFrameId = requestAnimationFrame(moveButterfly);
-  //   };
+      animationFrameId = requestAnimationFrame(moveButterfly);
+    };
 
-  //   moveButterfly();
+    moveButterfly();
 
-  //   return () => cancelAnimationFrame(animationFrameId);
-  // }, [targetPos]);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [targetPos]);
 
-  // const handleMouseMove = (e) => {
-  //   const newX = e.clientX;
-  //   const newY = e.clientY;
-  //   const dx = newX - lastX.current;
+  const handleMouseMove = (e) => {
+    const newX = e.clientX;
+    const newY = e.clientY;
+    const dx = newX - lastX.current;
 
-  //   if (Math.abs(dx) > 10) {
-  //     setAngle(dx > 0 ? 30 : -30);
-  //     clearTimeout(timeoutRef.current);
-  //     timeoutRef.current = setTimeout(() => setAngle(0), 300);
-  //     lastX.current = newX;
-  //   }
+    if (Math.abs(dx) > 10) {
+      setAngle(dx > 0 ? 30 : -30);
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => setAngle(0), 300);
+      lastX.current = newX;
+    }
 
-  //   setTargetPos({ x: newX, y: newY });
-  // };
+    setTargetPos({ x: newX, y: newY });
+  };
 
-  // useEffect(() => {
-  //   window.addEventListener('mousemove', handleMouseMove);
-  //   return () => {
-  //     window.removeEventListener('mousemove', handleMouseMove);
-  //     clearTimeout(timeoutRef.current);
-  //   };
-  // }, []);
+  useEffect(() => {
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   return (
     <div>
@@ -108,9 +106,9 @@ function App() {
         }}
       />
 
-      {/* {objects.map((obj) => (
+      {objects.map((obj) => (
         <RandomObject key={obj.id} x={obj.x} y={obj.y} />
-      ))} */}
+      ))}
 
       <div className="session">
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous"></link>
@@ -152,20 +150,15 @@ function App() {
           <h2>PROJECTS</h2>
           <p>what I've done (probably not my life)</p>
           <div className="dropdown-content">
-            {/* <Link to="/portfolio">My Portfolio</Link>
-            <Link to="/maunguoi">Mau Nguoi Cua Cau La Gi ?</Link> */}
+            <a href="https://sankatimo.github.io/portfolio">My Portfolio</a>
+            <a href="#">Mau Nguoi Cua Cau La Gi ?</a>
+            <a href="#">Telegram Bot</a>
           </div>
         </div>
-
         <div name="ranking" id="ranking">
           <h2>RANKING</h2>
           <p>do you know there's a game?</p>
         </div>
-        {/* <Routes>
-          <Route path="/portfolio" element={<MyPortfolio />} />
-          <Route path="/maunguoi" element={<MauNguoi />} />
-          <Route path="/telegrambot" element={<TelegramBot />} />
-        </Routes> */}
       </div>
     </div>
   );
