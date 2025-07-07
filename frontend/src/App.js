@@ -1,16 +1,29 @@
 import React, { useEffect, useState, useRef } from 'react';
 import './App.css';
-import gifImg from './butterfly.gif';
+import SlideShow from './component/SlideShow.js';
+import gifImg from './img/butterfly.gif';
 import RandomObject from './component/RandomObject.js';
 
+
 function App() {
-  const [targetPos, setTargetPos] = useState({ x: 0, y: 0 });
-  const [butterflyPos, setButterflyPos] = useState({ x: 0, y: 0 });
-  const [angle, setAngle] = useState(0);
+  const [pos, setPos] = useState({ x: 0, y: 0 });
   const [objects, setObjects] = useState([]);
+  const [score, setScore] = useState(0);
+  const [showGame, setShowGame] = useState(true);
+  const [playerName, setPlayerName] = useState('');
+  const [showAboutPopup, setShowAboutPopup] = useState(false);
+
+  const [topScores, setTopScores] = useState(() => {
+    const storedScores = localStorage.getItem('topScores');
+    return storedScores ? JSON.parse(storedScores) : [];
+  });
+
+  const [angle, setAngle] = useState(0);
+  const [currentPage, setCurrentPage] = useState("home");
   const lastX = useRef(0);
   const timeoutRef = useRef(null);
-  const butterflySize = 80;
+  const butterflyRef = useRef({ x: 0, y: 0 });
+  const butterflySize = 60;
   const objectSize = 30;
 
   const createRandomObject = () => {
@@ -28,35 +41,58 @@ function App() {
   };
 
   useEffect(() => {
+    const names = ['Alice', 'Bob', 'Charlie', 'Diem', 'Tom', 'Jerry'];
+    const randomName = names[Math.floor(Math.random() * names.length)];
+    setPlayerName(randomName);
+
     const initialObjects = Array.from({ length: 10 }, createRandomObject);
     setObjects(initialObjects);
   }, []);
 
-  // Update butterfly position smoothly and check collisions
   useEffect(() => {
+    if (!showGame || currentPage !== "home") return;
+    const moveDelay = 0.5;
     let animationFrameId;
 
     const moveButterfly = () => {
-      setButterflyPos((prev) => {
-        const dx = targetPos.x - prev.x;
-        const dy = targetPos.y - prev.y;
-        const speed = 0.95; 
-        const newX = prev.x + dx * speed;
-        const newY = prev.y + dy * speed;
+      butterflyRef.current.x += (pos.x - butterflyRef.current.x) * moveDelay;
+      butterflyRef.current.y += (pos.y - butterflyRef.current.y) * moveDelay;
 
-        setObjects((prevObjects) => {
-          const remaining = prevObjects.filter((obj) => {
-            const isColliding =
-              newX < obj.x + objectSize &&
-              newX + butterflySize > obj.x &&
-              newY < obj.y + objectSize &&
-              newY + butterflySize > obj.y;
-            return !isColliding;
-          });
-          return refillObjects(remaining);
+      setObjects((prevObjects) => {
+        const remaining = prevObjects.filter((obj) => {
+          const isColliding =
+            butterflyRef.current.x < obj.x + objectSize &&
+            butterflyRef.current.x + butterflySize > obj.x &&
+            butterflyRef.current.y < obj.y + objectSize &&
+            butterflyRef.current.y + butterflySize > obj.y;
+          if (isColliding) {
+            setScore((prev) => {
+              const newScore = prev + 1;
+
+              setTopScores((prevScores) => {
+                let updated = [...prevScores];
+                const existing = updated.find(e => e.name === playerName);
+
+                if (!existing) {
+                  updated.push({ name: playerName, score: newScore });
+                } else if (newScore > existing.score) {
+                  existing.score = newScore;
+                }
+
+                updated.sort((a, b) => b.score - a.score);
+                if (updated.length > 3) updated = updated.slice(0, 3);
+
+                localStorage.setItem('topScores', JSON.stringify(updated));
+                return updated;
+              });
+
+              return newScore;
+            });
+          }
+
+          return !isColliding;
         });
-
-        return { x: newX, y: newY };
+        return refillObjects(remaining);
       });
 
       animationFrameId = requestAnimationFrame(moveButterfly);
@@ -65,7 +101,7 @@ function App() {
     moveButterfly();
 
     return () => cancelAnimationFrame(animationFrameId);
-  }, [targetPos]);
+  }, [pos, showGame, currentPage]);
 
   const handleMouseMove = (e) => {
     const newX = e.clientX;
@@ -79,7 +115,7 @@ function App() {
       lastX.current = newX;
     }
 
-    setTargetPos({ x: newX, y: newY });
+    setPos({ x: newX, y: newY });
   };
 
   useEffect(() => {
@@ -90,33 +126,52 @@ function App() {
     };
   }, []);
 
+  const toggleGame = () => setShowGame(!showGame);
+  const goToProjectDetail = () => setCurrentPage("projectDetail");
+  const goBackHome = () => setCurrentPage("home");
+
   return (
     <div>
-      <img
-        src={gifImg}
-        alt="butterfly"
-        style={{
-          position: 'fixed',
-          width: `${butterflySize}px`,
-          height: `${butterflySize}px`,
-          pointerEvents: 'none',
-          zIndex: 9999,
-          transform: `translate(${butterflyPos.x}px, ${butterflyPos.y}px) rotate(${angle}deg)`,
-          transition: 'transform 0.05s linear',
-        }}
-      />
 
-      {objects.map((obj) => (
-        <RandomObject key={obj.id} x={obj.x} y={obj.y} />
-      ))}
+      {currentPage === "home" && (
+        <>
+          {showGame && (
+            <img
+              src={gifImg}
+              alt="butterfly"
+              style={{
+                position: 'fixed',
+                width: `${butterflySize}px`,
+                height: `${butterflySize}px`,
+                left: pos.x + 50,
+                top: pos.y + 50,
+                pointerEvents: 'none',
+                zIndex: 9999,
+                transform: `translate(-50%, -50%) rotate(${angle}deg)`,
+                transition: 'transform 0.5s linear',
+              }}
+            />
+          )}
 
-      <div className="session">
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous"></link>
-        <div name="about-me" id="about">
-          <h2>ABOUT ME</h2>
-          <p>wanna hear something?</p>
-        </div>
-        <div className="contact" id="contact">
+          {showGame &&
+            objects.map((obj) => (
+              <RandomObject key={obj.id} x={obj.x} y={obj.y} />
+            ))}
+
+          <div className="session">
+            <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous"></link>
+            <div name="about-me" id="about">
+              <h2>ABOUT ME</h2>
+              <p>wanna hear something?</p>
+
+              <div className="about-dropdown">
+                <p>Hello! I'm Diem — a creative and passionate developer (i love databases).</p>
+                <p>I love building interactive webs and telling stories through code and design.</p>
+              </div>
+            </div>
+
+
+            <div className="contact" id="contact">
           <h2>CONTACT</h2>
           <p>get in touch w/ me</p>
           <div className="dropdown-content">
@@ -146,20 +201,66 @@ function App() {
             </a>
           </div>
         </div>
-        <div className="projects">
-          <h2>PROJECTS</h2>
-          <p>what I've done (probably not my life)</p>
-          <div className="dropdown-content">
-            <a href="https://sankatimo.github.io/portfolio">My Portfolio</a>
-            <a href="#">Mau Nguoi Cua Cau La Gi ?</a>
-            <a href="#">Telegram Bot</a>
+
+            <div name="toggle-effect" id="toggle-effect">
+              <h2>Show Effect</h2>
+              <label className="switch">
+                <input onClick={toggleGame} type="checkbox" defaultChecked />
+                <span className="slider round"></span>
+              </label>
+            </div>
+
+            <div className="projects">
+              <h2>PROJECTS</h2>
+              <p>what I've done (probably not my life)</p>
+              <div className="dropdown-content">
+                <a href="https://sankatimo.github.io/portfolio">My Portfolio</a>
+                <a href="#" onClick={goToProjectDetail}>Mau Nguoi Cua Cau La Gi ?</a>
+              </div>
+            </div>
+
+            <div name="ranking" id="ranking">
+              <h2>RANKING</h2>
+              <p>do you know there's a game?</p>
+              <div className="ranking-content">
+                
+                <ul>
+                  {topScores.map((entry, idx) => (
+                    <li key={idx}>{entry.name}: {entry.score}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <h4>{playerName}</h4>
+            <p>{score}</p>
           </div>
+        </>
+      )}
+
+      {currentPage === "projectDetail" && (
+        <div style={{ padding: '20px'}}>
+          <h2 style={{margin: '20px'}}>Mẫu Người Của Cậu Là Gì ?</h2>
+
+          <div style={{ marginBottom: '20px' }}>
+            <SlideShow />
+          </div>
+
+
+          <div style={{ fontSize: '18px', lineHeight: '1.6', marginBottom: '20px' }}>
+            <p><strong>About the Product<br/><br/></strong>
+              What's Your Type? is a creative personality book that helps you discover which 'type of person' you are based on your habits, quirks, and little truths about yourself.<br/><br/>
+              From 'The Crybaby Lord' to 'The Overthinking Commander,' it captures the fun and relatable traits of Gen Z with humor and warmth.<br/><br/>
+              Loved by over 1 million followers, this book turns those personal traits into a fun way to describe yourself and your friends.
+            </p>
+          </div>
+
+          <button onClick={goBackHome} style={{ padding: '10px 20px', borderRadius: '5px', background: '#e990ffaf', color: '#9c36b5', border: 'none', cursor: 'pointer' }}>
+            Home
+          </button>
         </div>
-        <div name="ranking" id="ranking">
-          <h2>RANKING</h2>
-          <p>do you know there's a game?</p>
-        </div>
-      </div>
+        
+      )}
+
     </div>
   );
 }

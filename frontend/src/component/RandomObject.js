@@ -11,7 +11,7 @@ function RandomObject({ x, y }) {
         left: x,
         width: '50px',
         height: '50px',
-        zIndex: 9997,
+        zIndex: 999,
         pointerEvents: 'none',
       }}
     />
