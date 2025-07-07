@@ -1,0 +1,59 @@
+.slideshow-container {
+  position: relative;
+  width: 50vw;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.slides {
+  position: relative;
+  height: auto;
+}
+
+.slide {
+  width: 50vw;
+  height: auto;
+  max-height: 600px;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.slide.active {
+  opacity: 1;
+  z-index: 2;
+  position: relative;
+}
+
+.slide.nearby {
+  opacity: 0.3;
+  z-index: 1;
+}
+
+.slide.hidden {
+  opacity: 0;
+  z-index: 0;
+}
+
+.prev, .next {
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  padding: 10px;
+  font-size: 24px;
+  background: rgba(255, 255, 255, 0.6);
+  border: none;
+  transform: translateY(-50%);
+  z-index: 3;
+}
+
+.prev {
+  left: 0;
+}
+
+.next {
+  right: 0;
+}
