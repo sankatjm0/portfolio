@@ -176,7 +176,7 @@ function App() {
           <p>get in touch w/ me</p>
           <div className="dropdown-content">
             <a href="#">
-              <ul>
+              <ul className='social-icons'>
                 <li>
                   <a href="https://facebook.com/sankatimo">
                     <i className="fab fa-facebook-f icon"></i>
@@ -224,11 +224,12 @@ function App() {
               <p>do you know there's a game?</p>
               <div className="ranking-content">
                 
-                <ul>
+                <ul className="ranking-list">
                   {topScores.map((entry, idx) => (
                     <li key={idx}>{entry.name}: {entry.score}</li>
                   ))}
                 </ul>
+
               </div>
             </div>
             <h4>{playerName}</h4>
