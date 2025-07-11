@@ -69,13 +69,16 @@ h2, p {
 
 .social-icons {
   display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
   width: 100%;
   position: relative;
   top: 0;
   left: 0;
-  margin-top: 30px;
-  transform: translate(-50%, -50%);
+  list-style: none;
 }
+
 
 .social-icons li {
   list-style: none;
@@ -159,6 +162,7 @@ h2, p {
 	transition: all 0.3s;
 	pointer-events: none;
 	margin: 0 auto;
+  text-align: center;
 }
 
 .projects:hover .dropdown-content {

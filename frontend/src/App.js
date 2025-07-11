@@ -175,7 +175,6 @@ function App() {
           <h2>CONTACT</h2>
           <p>get in touch w/ me</p>
           <div className="dropdown-content">
-            <a href="#">
               <ul className='social-icons'>
                 <li>
                   <a href="https://facebook.com/sankatimo">
@@ -198,7 +197,6 @@ function App() {
                   </a>
                 </li>
               </ul>
-            </a>
           </div>
         </div>
 
