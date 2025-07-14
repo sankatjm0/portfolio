@@ -3,6 +3,7 @@ import './App.css';
 import SlideShow from './component/SlideShow.js';
 import gifImg from './img/butterfly.gif';
 import RandomObject from './component/RandomObject.js';
+import { createClient } from '@supabase/supabase-js'
 
 
 function App() {
@@ -11,13 +12,45 @@ function App() {
   const [score, setScore] = useState(0);
   const [showGame, setShowGame] = useState(true);
   const [playerName, setPlayerName] = useState('');
-  const [showAboutPopup, setShowAboutPopup] = useState(false);
+  const supabaseUrl = 'https://qjqkznyvvktlozcmbsjf.supabase.co'
+  const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqcWt6bnl2dmt0bG96Y21ic2pmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIyMDY5MDcsImV4cCI6MjA2Nzc4MjkwN30.gAppGJBCRhYdt03F4L5q1zLLjrC1Y98kZqWcQqEAV_o'
 
-  const [topScores, setTopScores] = useState(() => {
-    const storedScores = localStorage.getItem('topScores');
-    return storedScores ? JSON.parse(storedScores) : [];
-  });
+  const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
+  const saveScoreToSupabase = async (playerName, newScore) => {
+    const { error: updateError } = await supabase
+      .from('ranking')
+      .update({ score: newScore })
+      .eq('name', playerName);
+
+    if (updateError) {
+      console.error('Update score error:', updateError);
+      return;
+    }
+
+    const { data: topPlayers, error: refreshError } = await supabase
+      .from('ranking')
+      .select('*')
+      .order('score', { ascending: false });
+
+    if (refreshError) {
+      console.error('Refresh error:', refreshError);
+      return;
+    }
+
+    if (topPlayers.length > 3) {
+      const excessEntries = topPlayers.slice(3);
+
+      for (const entry of excessEntries) {
+        await supabase.from('ranking').delete().match({ name: entry.name });
+      }
+    }
+
+    setTopScores(topPlayers.slice(0, 3));
+  };
+
+
+  const [topScores, setTopScores] = useState([]);
   const [angle, setAngle] = useState(0);
   const [currentPage, setCurrentPage] = useState("home");
   const lastX = useRef(0);
@@ -45,9 +78,29 @@ function App() {
     const randomName = names[Math.floor(Math.random() * names.length)];
     setPlayerName(randomName);
 
+    const checkAndCreatePlayer = async () => {
+      const { data, error } = await supabase
+        .from('ranking')
+        .select('score')
+        .eq('name', randomName)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Fetch error:', error);
+        return;
+      }
+
+      if (!data) {
+        await supabase.from('ranking').insert([{ name: randomName, score: 0 }]);
+      }
+    };
+
+    checkAndCreatePlayer();
+
     const initialObjects = Array.from({ length: 10 }, createRandomObject);
     setObjects(initialObjects);
   }, []);
+
 
   useEffect(() => {
     if (!showGame || currentPage !== "home") return;
@@ -69,22 +122,7 @@ function App() {
             setScore((prev) => {
               const newScore = prev + 1;
 
-              setTopScores((prevScores) => {
-                let updated = [...prevScores];
-                const existing = updated.find(e => e.name === playerName);
-
-                if (!existing) {
-                  updated.push({ name: playerName, score: newScore });
-                } else if (newScore > existing.score) {
-                  existing.score = newScore;
-                }
-
-                updated.sort((a, b) => b.score - a.score);
-                if (updated.length > 3) updated = updated.slice(0, 3);
-
-                localStorage.setItem('topScores', JSON.stringify(updated));
-                return updated;
-              });
+              saveScoreToSupabase(playerName, newScore);
 
               return newScore;
             });
@@ -117,6 +155,24 @@ function App() {
 
     setPos({ x: newX, y: newY });
   };
+
+  useEffect(() => {
+    const fetchTopScores = async () => {
+      const { data, error } = await supabase
+        .from('ranking')
+        .select('*')
+        .order('score', { ascending: false })
+        .limit(3);
+
+      if (error) {
+        console.error('Fetch top scores error:', error);
+      } else {
+        setTopScores(data);
+      }
+    };
+
+    fetchTopScores();
+  }, []);
 
   useEffect(() => {
     window.addEventListener('mousemove', handleMouseMove);
